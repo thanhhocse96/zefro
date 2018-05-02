@@ -1,9 +1,17 @@
 from level import callLevel
 from utils import bloxorzPrintMap
-from bloxors import State, Direction, BlzElement
+from bloxors import State, Direction, BlzElement, getStateStart
+from solver import DFS
 
-level = 0
-map = callLevel(level)
+level = 1
+blzMap = callLevel(level)
+blzStart = getStateStart(blzMap)
 
-bloxorzPrintMap(map)
+bloxorzPrintMap(blzMap)
 
+A = DFS(blzMap,blzStart)
+
+lenA = len(A)
+
+print (lenA)
+print(A[lenA - 1].BlzElementIdx)
