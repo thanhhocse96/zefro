@@ -1,7 +1,7 @@
 """Notation:
 '.': Blank space
 '+': Space block could move to
-'S': Start 
+'S': Start - the Block allways start in State-STAND
 'G': Goal 
 """
 

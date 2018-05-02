@@ -1,9 +1,20 @@
 from level import callLevel
 from utils import bloxorzPrintMap
-from bloxors import State, Direction, BlzElement
+from bloxors import State, Direction, BlzElement, getStateStart, moveRight
 
-level = 0
-map = callLevel(level)
+level = 1
+blzMap = callLevel(level)
 
-bloxorzPrintMap(map)
+bloxorzPrintMap(blzMap)
 
+block = getStateStart(blzMap)
+
+print(block.BlzElementIdx)
+
+bloxorzPrintMap(blzMap)
+
+newBlock = moveRight(block, blzMap)
+
+print(newBlock.BlzElementIdx)
+
+bloxorzPrintMap(blzMap)
