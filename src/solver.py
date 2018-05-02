@@ -1,4 +1,14 @@
-from bloxors import State, Direction, BlzElement, getStateStart
+from bloxors import State, Direction, BlzBlock, getStateStart, move
 
-def DFS(blzMap, blzElement):
-  pass
+def DFS(blzMap, blzBlock):
+  # Stack used for DFS
+  blzStack = []
+  blzStack.append(blzBlock)
+
+  # Trace List use for reCreat the moving of DFS
+  blzTrace = []
+
+  while (len(blzStack) != 0):
+    block = blzStack.pop()
+    block.checkMovable()
+    if()

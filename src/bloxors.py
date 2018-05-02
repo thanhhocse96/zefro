@@ -23,22 +23,19 @@ class Direction(IntEnum):
     LEFT = 2
     RIGHT = 3
 
-# -----------Begin class BlzElement
-
-
-class BlzElement:
+# -----------Begin class BlzBlock
+class BlzBlock:
     def __init__(self):
         self.blzState = State.DONTKNOW
         # Index of Bloxorz Element [[row1, col1],[row2, col2]]
         # If state: STAND => row2 = col2 = -1
-        self.BlzElementIdx = [[-1, -1], [-1, -1]]
+        self.blzBlockIdx = [[-1, -1], [-1, -1]]
         # Direction where Block can move to
         # Index: UP, DOWN, LEFT, RIGHT
         self.blzMovable = [True, True, True, True]
 
     """Check if Block can be movable
-  Update blzMovable"""
-
+    Update blzMovable"""
     def checkMovable(self, blzMap):
         # Use to check the condition block can move
         numrows = len(blzMap)
@@ -47,63 +44,63 @@ class BlzElement:
         # Switch between state
         if (self.blzState == State.STAND):
             # Move Right
-            colR1 = self.BlzElementIdx[0][1] + 1
-            colR2 = self.BlzElementIdx[0][1] + 2
+            colR1 = self.blzBlockIdx[0][1] + 1
+            colR2 = self.blzBlockIdx[0][1] + 2
             self.blzMovable[int(Direction.RIGHT)] = False if (
                 colR1 >= numcols or colR2 >= numcols) else True
             # Move Left
-            colL1 = self.BlzElementIdx[0][1] - 2
-            colL2 = self.BlzElementIdx[0][1] - 1
+            colL1 = self.blzBlockIdx[0][1] - 2
+            colL2 = self.blzBlockIdx[0][1] - 1
             self.blzMovable[int(Direction.LEFT)] = False if (
                 colL1 < 0 or colL2 < 0) else True
             # Move Up
-            rowU1 = self.BlzElementIdx[0][0] - 2
-            rowU2 = self.BlzElementIdx[0][0] - 1
+            rowU1 = self.blzBlockIdx[0][0] - 2
+            rowU2 = self.blzBlockIdx[0][0] - 1
             self.blzMovable[int(Direction.UP)] = False if (
                 rowU1 < 0 or rowU2 < 0) else True
             # Move Down
-            rowD1 = self.BlzElementIdx[0][0] + 1
-            rowD2 = self.BlzElementIdx[0][0] + 2
+            rowD1 = self.blzBlockIdx[0][0] + 1
+            rowD2 = self.blzBlockIdx[0][0] + 2
             self.blzMovable[int(Direction.DOWN)] = False if (
                 rowD1 >= numrows or rowD2 >= numrows) else True
 
         elif (self.blzState == State.GROUND_HOZ):
             # Move Right
-            colR = self.BlzElementIdx[1][1] + 1
+            colR = self.blzBlockIdx[1][1] + 1
             self.blzMovable[int(Direction.RIGHT)] = False if (
                 colR >= numcols) else True
             # Move Left
-            colL = self.BlzElementIdx[0][1] - 1
+            colL = self.blzBlockIdx[0][1] - 1
             self.blzMovable[int(Direction.LEFT)] = False if (
                 colL < 0) else True
             # Move Up
-            rowU = self.BlzElementIdx[0][0] - 1
+            rowU = self.blzBlockIdx[0][0] - 1
             self.blzMovable[int(Direction.UP)] = False if (rowU < 0) else True
             # Move Down
-            rowD = self.BlzElementIdx[0][0] + 1
+            rowD = self.blzBlockIdx[0][0] + 1
             self.blzMovable[int(Direction.DOWN)] = False if (
                 rowD < 0) else True
 
         elif (self.blzState == State.GROUND_VEC):
             # Move Right
-            colR = self.BlzElementIdx[0][1] + 1
+            colR = self.blzBlockIdx[0][1] + 1
             self.blzMovable[int(Direction.RIGHT)] = False if (
                 colR >= numcols) else True
             # Move Left
-            colL = self.BlzElementIdx[0][1] - 1
+            colL = self.blzBlockIdx[0][1] - 1
             self.blzMovable[int(Direction.LEFT)] = False if (
                 colL < 0) else True
             # Move Up
-            rowU = self.BlzElementIdx[0][0] - 1
+            rowU = self.blzBlockIdx[0][0] - 1
             self.blzMovable[int(Direction.UP)] = False if (rowU < 0) else True
             # Move Down
-            rowD = self.BlzElementIdx[1][0] + 1
+            rowD = self.blzBlockIdx[1][0] + 1
             self.blzMovable[int(Direction.DOWN)] = False if (
                 rowD < 0) else True
         else:
             pass
 
-# -----------End class BlzElement
+# -----------End class BlzBlock
 
 
 """Goal: Get State, Index of Blozorx block
@@ -113,7 +110,7 @@ Return: blockStart (State, Index, Movable list)
 
 
 def getStateStart(blzMap):
-    blockStart = BlzElement()
+    blockStart = BlzBlock()
 
     numrows = len(blzMap)
     numcols = len(blzMap[0])
@@ -121,8 +118,8 @@ def getStateStart(blzMap):
         for col in range(numcols):
             if blzMap[row][col] == 'S':
                 blockStart.blzState = State.STAND
-                blockStart.BlzElementIdx[0][0] = row
-                blockStart.BlzElementIdx[0][1] = col
+                blockStart.blzBlockIdx[0][0] = row
+                blockStart.blzBlockIdx[0][1] = col
 
                 # BLOXORZ: B => block stand here
                 blzMap[row][col] = 'B'
@@ -130,16 +127,30 @@ def getStateStart(blzMap):
 
     return blockStart
 
+"""Return the new BlzBlock Object
+Simplyfied approach"""
+def move(blzBlock, blzMap, direction):
+  if (blzBlock.blzMovable[int(direction)]):
+    if(direction == Direction.UP):
+      return moveUp(blzBlock, blzMap)
+    elif (direction == Direction.DOWN):
+      return moveDown(blzBlock, blzMap)
+    elif (direction == Direction.RIGHT):
+      return moveRight(blzBlock, blzMap)
+    else:
+      return moveLeft(blzBlock, blzMap)
+  else: 
+    return None
 
+# -----------Begin move function
 """Move Right
 Return:
 + new Block - the block move Right
 + None - the block can't move"""
 
-
 def moveRight(block, blzMap):
     block.checkMovable(blzMap)
-    newBlz = BlzElement()
+    newBlz = BlzBlock()
 
     if (block.blzMovable[int(Direction.RIGHT)]):
             # STAND
@@ -148,14 +159,14 @@ def moveRight(block, blzMap):
             newBlz.blzState = State.GROUND_HOZ
 
             # Remove current position
-            blzMap[block.BlzElementIdx[0][0]
-                   ][block.BlzElementIdx[0][1]] = '+'
+            blzMap[block.blzBlockIdx[0][0]
+                   ][block.blzBlockIdx[0][1]] = '+'
             # Update
-            row = block.BlzElementIdx[0][0]
-            col1 = block.BlzElementIdx[0][1] + 1
-            col2 = block.BlzElementIdx[0][1] + 2
+            row = block.blzBlockIdx[0][0]
+            col1 = block.blzBlockIdx[0][1] + 1
+            col2 = block.blzBlockIdx[0][1] + 2
             # Update Location of Block
-            newBlz.BlzElementIdx = [[row, col1], [row, col2]]
+            newBlz.blzBlockIdx = [[row, col1], [row, col2]]
             # Update Map
             blzMap[row][col1] = blzMap[row][col2] = 'B'
 
@@ -165,15 +176,15 @@ def moveRight(block, blzMap):
             newBlz.blzState = State.STAND
 
             # Remove current position
-            blzMap[block.BlzElementIdx[0][0]
-                   ][block.BlzElementIdx[0][1]] = '+'
-            blzMap[block.BlzElementIdx[1][0]
-                   ][block.BlzElementIdx[1][1]] = '+'
+            blzMap[block.blzBlockIdx[0][0]
+                   ][block.blzBlockIdx[0][1]] = '+'
+            blzMap[block.blzBlockIdx[1][0]
+                   ][block.blzBlockIdx[1][1]] = '+'
             # Update
-            row = block.BlzElementIdx[0][0]
-            col = block.BlzElementIdx[1][1] + 1
+            row = block.blzBlockIdx[0][0]
+            col = block.blzBlockIdx[1][1] + 1
             # Update Location of Block
-            newBlz.BlzElementIdx = [[row, col], [-1, -1]]
+            newBlz.blzBlockIdx = [[row, col], [-1, -1]]
             # Update Map
             blzMap[row][col] = 'B'
 
@@ -183,16 +194,16 @@ def moveRight(block, blzMap):
             newBlz.blzState = State.GROUND_VEC
 
             # Remove current position
-            blzMap[block.BlzElementIdx[0][0]
-                   ][block.BlzElementIdx[0][1]] = '+'
-            blzMap[block.BlzElementIdx[1][0]
-                   ][block.BlzElementIdx[1][1]] = '+'
+            blzMap[block.blzBlockIdx[0][0]
+                   ][block.blzBlockIdx[0][1]] = '+'
+            blzMap[block.blzBlockIdx[1][0]
+                   ][block.blzBlockIdx[1][1]] = '+'
             # Update
-            row1 = block.BlzElementIdx[0][0] + 1
-            row2 = block.BlzElementIdx[1][0] + 1
-            col = block.BlzElementIdx[0][1]
+            row1 = block.blzBlockIdx[0][0] + 1
+            row2 = block.blzBlockIdx[1][0] + 1
+            col = block.blzBlockIdx[0][1]
             # Update Location of Block
-            newBlz.BlzElementIdx = [[row1, col], [row2, col]]
+            newBlz.blzBlockIdx = [[row1, col], [row2, col]]
             # Update Map
             blzMap[row1][col] = blzMap[row2][col] = 'B'
         else:
@@ -208,10 +219,9 @@ def moveRight(block, blzMap):
   + new Block - the block move Left
   + None - the block can't move"""
 
-
 def moveLeft(block, blzMap):
   block.checkMovable(blzMap)
-  newBlz = BlzElement()
+  newBlz = BlzBlock()
 
   if (block.blzMovable[int(Direction.LEFT)]):
     # STAND
@@ -220,14 +230,14 @@ def moveLeft(block, blzMap):
         newBlz.blzState = State.GROUND_HOZ
 
         # Remove current position
-        blzMap[block.BlzElementIdx[0][0]
-                ][block.BlzElementIdx[0][1]] = '+'
+        blzMap[block.blzBlockIdx[0][0]
+                ][block.blzBlockIdx[0][1]] = '+'
         # Update
-        row = block.BlzElementIdx[0][0]
-        col1 = block.BlzElementIdx[0][1] - 2
-        col2 = block.BlzElementIdx[0][1] - 1
+        row = block.blzBlockIdx[0][0]
+        col1 = block.blzBlockIdx[0][1] - 2
+        col2 = block.blzBlockIdx[0][1] - 1
         # Update Location of Block
-        newBlz.BlzElementIdx = [[row, col1], [row, col2]]
+        newBlz.blzBlockIdx = [[row, col1], [row, col2]]
         # Update Map
         blzMap[row][col1] = blzMap[row][col2] = 'B'
 
@@ -237,15 +247,15 @@ def moveLeft(block, blzMap):
         newBlz.blzState = State.STAND
 
         # Remove current position
-        blzMap[block.BlzElementIdx[0][0]
-                ][block.BlzElementIdx[0][1]] = '+'
-        blzMap[block.BlzElementIdx[1][0]
-                ][block.BlzElementIdx[1][1]] = '+'
+        blzMap[block.blzBlockIdx[0][0]
+                ][block.blzBlockIdx[0][1]] = '+'
+        blzMap[block.blzBlockIdx[1][0]
+                ][block.blzBlockIdx[1][1]] = '+'
         # Update
-        row = block.BlzElementIdx[0][0]
-        col = block.BlzElementIdx[0][1] - 1
+        row = block.blzBlockIdx[0][0]
+        col = block.blzBlockIdx[0][1] - 1
         # Update Location of Block
-        newBlz.BlzElementIdx = [[row, col], [-1, -1]]
+        newBlz.blzBlockIdx = [[row, col], [-1, -1]]
         # Update Map
         blzMap[row][col] = 'B'
 
@@ -255,16 +265,16 @@ def moveLeft(block, blzMap):
         newBlz.blzState = State.GROUND_VEC
 
         # Remove current position
-        blzMap[block.BlzElementIdx[0][0]
-                ][block.BlzElementIdx[0][1]] = '+'
-        blzMap[block.BlzElementIdx[1][0]
-                ][block.BlzElementIdx[1][1]] = '+'
+        blzMap[block.blzBlockIdx[0][0]
+                ][block.blzBlockIdx[0][1]] = '+'
+        blzMap[block.blzBlockIdx[1][0]
+                ][block.blzBlockIdx[1][1]] = '+'
         # Update
-        row1 = block.BlzElementIdx[0][0]
-        row2 = block.BlzElementIdx[1][0]
-        col = block.BlzElementIdx[0][1] - 1
+        row1 = block.blzBlockIdx[0][0]
+        row2 = block.blzBlockIdx[1][0]
+        col = block.blzBlockIdx[0][1] - 1
         # Update Location of Block
-        newBlz.BlzElementIdx = [[row1, col], [row2, col]]
+        newBlz.blzBlockIdx = [[row1, col], [row2, col]]
         # Update Map
         blzMap[row1][col] = blzMap[row2][col] = 'B'
     else:
@@ -280,7 +290,7 @@ Return:
 + None - the block can't move"""
 def moveUp(block, blzMap):
   block.checkMovable(blzMap)
-  newBlz = BlzElement()
+  newBlz = BlzBlock()
 
   if (block.blzMovable[int(Direction.UP)]):
       # STAND
@@ -289,14 +299,14 @@ def moveUp(block, blzMap):
           newBlz.blzState = State.GROUND_VEC
 
           # Remove current position
-          blzMap[block.BlzElementIdx[0][0]
-                  ][block.BlzElementIdx[0][1]] = '+'
+          blzMap[block.blzBlockIdx[0][0]
+                  ][block.blzBlockIdx[0][1]] = '+'
           # Update
-          row1 = block.BlzElementIdx[0][0] - 2
-          row2 = block.BlzElementIdx[0][0] - 1
-          col = block.BlzElementIdx[0][1]
+          row1 = block.blzBlockIdx[0][0] - 2
+          row2 = block.blzBlockIdx[0][0] - 1
+          col = block.blzBlockIdx[0][1]
           # Update Location of Block
-          newBlz.BlzElementIdx = [[row1, col], [row2, col]]
+          newBlz.blzBlockIdx = [[row1, col], [row2, col]]
           # Update Map
           blzMap[row1][col] = blzMap[row2][col] = 'B'
 
@@ -306,16 +316,16 @@ def moveUp(block, blzMap):
           newBlz.blzState = State.GROUND_HOZ
 
           # Remove current position
-          blzMap[block.BlzElementIdx[0][0]
-                  ][block.BlzElementIdx[0][1]] = '+'
-          blzMap[block.BlzElementIdx[1][0]
-                  ][block.BlzElementIdx[1][1]] = '+'
+          blzMap[block.blzBlockIdx[0][0]
+                  ][block.blzBlockIdx[0][1]] = '+'
+          blzMap[block.blzBlockIdx[1][0]
+                  ][block.blzBlockIdx[1][1]] = '+'
           # Update
-          row = block.BlzElementIdx[0][0] - 1
-          col1 = block.BlzElementIdx[0][1]
-          col2 = block.BlzElementIdx[1][1]
+          row = block.blzBlockIdx[0][0] - 1
+          col1 = block.blzBlockIdx[0][1]
+          col2 = block.blzBlockIdx[1][1]
           # Update Location of Block
-          newBlz.BlzElementIdx = [[row, col1], [row, col2]]
+          newBlz.blzBlockIdx = [[row, col1], [row, col2]]
           # Update Map
           blzMap[row][col1] = blzMap[row][col2] = 'B'
 
@@ -325,16 +335,16 @@ def moveUp(block, blzMap):
           newBlz.blzState = State.STAND
 
           # Remove current position
-          blzMap[block.BlzElementIdx[0][0]
-                  ][block.BlzElementIdx[0][1]] = '+'
-          blzMap[block.BlzElementIdx[1][0]
-                  ][block.BlzElementIdx[1][1]] = '+'
+          blzMap[block.blzBlockIdx[0][0]
+                  ][block.blzBlockIdx[0][1]] = '+'
+          blzMap[block.blzBlockIdx[1][0]
+                  ][block.blzBlockIdx[1][1]] = '+'
           # Update
-          row = block.BlzElementIdx[0][0] - 1
-          col = block.BlzElementIdx[0][1]
+          row = block.blzBlockIdx[0][0] - 1
+          col = block.blzBlockIdx[0][1]
 
           # Update Location of Block
-          newBlz.BlzElementIdx = [[row, col], [-1, -1]]
+          newBlz.blzBlockIdx = [[row, col], [-1, -1]]
           # Update Map
           blzMap[row][col] = 'B'
       else:
@@ -350,7 +360,7 @@ Return:
 + False - the block can't move"""
 def moveDown(block, blzMap):
   block.checkMovable(blzMap)
-  newBlz = BlzElement()
+  newBlz = BlzBlock()
   if (block.blzMovable[int(Direction.DOWN)]):
       # STAND
       if (block.blzState == State.STAND):
@@ -358,14 +368,14 @@ def moveDown(block, blzMap):
           newBlz.blzState = State.GROUND_VEC
 
           # Remove current position
-          blzMap[block.BlzElementIdx[0][0]
-                  ][block.BlzElementIdx[0][1]] = '+'
+          blzMap[block.blzBlockIdx[0][0]
+                  ][block.blzBlockIdx[0][1]] = '+'
           # Update
-          row1 = block.BlzElementIdx[0][0] + 1
-          row2 = block.BlzElementIdx[0][0] + 2
-          col = block.BlzElementIdx[0][1]
+          row1 = block.blzBlockIdx[0][0] + 1
+          row2 = block.blzBlockIdx[0][0] + 2
+          col = block.blzBlockIdx[0][1]
           # Update Location of Block
-          newBlz.BlzElementIdx = [[row1, col], [row2, col]]
+          newBlz.blzBlockIdx = [[row1, col], [row2, col]]
           # Update Map
           blzMap[row1][col] = blzMap[row2][col] = 'B'
 
@@ -375,16 +385,16 @@ def moveDown(block, blzMap):
           newBlz.blzState = State.GROUND_HOZ
 
           # Remove current position
-          blzMap[block.BlzElementIdx[0][0]
-                  ][block.BlzElementIdx[0][1]] = '+'
-          blzMap[block.BlzElementIdx[1][0]
-                  ][block.BlzElementIdx[1][1]] = '+'
+          blzMap[block.blzBlockIdx[0][0]
+                  ][block.blzBlockIdx[0][1]] = '+'
+          blzMap[block.blzBlockIdx[1][0]
+                  ][block.blzBlockIdx[1][1]] = '+'
           # Update
-          row = block.BlzElementIdx[0][0] + 1
-          col1 = block.BlzElementIdx[0][1]
-          col2 = block.BlzElementIdx[1][1]
+          row = block.blzBlockIdx[0][0] + 1
+          col1 = block.blzBlockIdx[0][1]
+          col2 = block.blzBlockIdx[1][1]
           # Update Location of Block
-          newBlz.BlzElementIdx = [[row, col1], [row, col2]]
+          newBlz.blzBlockIdx = [[row, col1], [row, col2]]
           # Update Map
           blzMap[row][col1] = blzMap[row][col2] = 'B'
 
@@ -394,16 +404,16 @@ def moveDown(block, blzMap):
           newBlz.blzState = State.STAND
 
           # Remove current position
-          blzMap[block.BlzElementIdx[0][0]
-                  ][block.BlzElementIdx[0][1]] = '+'
-          blzMap[block.BlzElementIdx[1][0]
-                  ][block.BlzElementIdx[1][1]] = '+'
+          blzMap[block.blzBlockIdx[0][0]
+                  ][block.blzBlockIdx[0][1]] = '+'
+          blzMap[block.blzBlockIdx[1][0]
+                  ][block.blzBlockIdx[1][1]] = '+'
           # Update
-          row = block.BlzElementIdx[1][0] + 1
-          col = block.BlzElementIdx[0][1]
+          row = block.blzBlockIdx[1][0] + 1
+          col = block.blzBlockIdx[0][1]
 
           # Update Location of Block
-          newBlz.BlzElementIdx = [[row, col], [-1, -1]]
+          newBlz.blzBlockIdx = [[row, col], [-1, -1]]
           # Update Map
           blzMap[row][col] = 'B'
       else:
@@ -412,3 +422,5 @@ def moveDown(block, blzMap):
       return newBlz
   else:
       return None
+
+# -----------End move function
