@@ -10,5 +10,20 @@ def DFS(blzMap, blzBlock):
 
   while (len(blzStack) != 0):
     block = blzStack.pop()
-    block.checkMovable()
-    if()
+    block.checkMovable(blzMap)
+
+    blzTrace.append(block)
+    if(block.):
+      for dicr in range(len(block.blzMovable)):
+        direction = Direction(dicr)
+        if(block.blzMovable[dicr]):
+          newBlock = move(block, blzMap, direction)
+          newBlock.checkMovable(blzMap)
+          blzStack.append(newBlock)
+
+          blzTrace.append(newBlock)
+        else: 
+          continue 
+    
+    
+  return blzTrace

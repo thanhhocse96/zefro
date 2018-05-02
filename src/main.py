@@ -1,6 +1,7 @@
 from level import callLevel
 from utils import bloxorzPrintMap
 from bloxors import State, Direction, BlzBlock, getStateStart, move
+from solver import DFS
 
 level = 1
 blzMap = callLevel(level)
@@ -13,26 +14,10 @@ print(block.blzBlockIdx)
 
 bloxorzPrintMap(blzMap)
 
-newBlock = move(block, blzMap, Direction.RIGHT)
+blzSolver = DFS(blzMap, block)
 
-print(newBlock.blzBlockIdx)
+lenSolver = len(blzSolver)
 
-bloxorzPrintMap(blzMap)
+print(lenSolver)
 
-newBlock = move(newBlock, blzMap, Direction.DOWN)
-
-print(newBlock.blzBlockIdx)
-
-bloxorzPrintMap(blzMap)
-
-newBlock = move(newBlock, blzMap, Direction.UP)
-
-print(newBlock.blzBlockIdx)
-
-bloxorzPrintMap(blzMap)
-
-newBlock = move(newBlock, blzMap, Direction.LEFT)
-
-print(newBlock.blzBlockIdx)
-
-bloxorzPrintMap(blzMap)
+print(blzSolver[lenSolver - 1].blzBlockIdx)
