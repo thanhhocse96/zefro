@@ -1,29 +1,37 @@
-from bloxors import State, Direction, BlzBlock, getStateStart, move
+from bloxors import State, Direction, BlzBlock, getStateStart, move, checkBlockInList
 
-def DFS(blzMap, blzBlock):
-  # Stack used for DFS
-  blzStack = []
-  blzStack.append(blzBlock)
 
-  # Trace List use for reCreat the moving of DFS
+def DFS(blzMap, blzStartBlock):
+  blzStack = [blzStartBlock]
+  
   blzTrace = []
 
-  while (len(blzStack) != 0):
-    block = blzStack.pop()
-    block.checkMovable(blzMap)
+  while (len(blzStack) != 0): 
+    curBlock = blzStack.pop()
+    curBlock.checkMovable(blzMap)
 
-    blzTrace.append(block)
-    if(block.):
-      for dicr in range(len(block.blzMovable)):
-        direction = Direction(dicr)
-        if(block.blzMovable[dicr]):
-          newBlock = move(block, blzMap, direction)
-          newBlock.checkMovable(blzMap)
-          blzStack.append(newBlock)
+    # Debug
+    print ("Cur block: ", curBlock.blzBlockIdx)
+    if (not(checkBlockInList(curBlock, blzTrace))):
+      blzTrace.append(curBlock)
 
-          blzTrace.append(newBlock)
+      lenCur = len(curBlock.blzMovable)
+      print (lenCur)
+      for i in range(lenCur):
+        if (curBlock.blzMovable[i] == True):
+          print("next",Direction(i), curBlock.blzMovable[i])
+          nextBlock = move(curBlock, blzMap, Direction(i))
+          nextBlock.checkMovable(blzMap)
+          blzStack.append(nextBlock)
+           # Debug
+          print ("Next block: ", nextBlock.blzBlockIdx)
         else: 
-          continue 
-    
-    
+          continue
+    else:
+      continue
+    if (curBlock.checkFinish(blzMap)):
+      break
   return blzTrace
+
+def BFS():
+  pass    

@@ -14,6 +14,18 @@ print(block.blzBlockIdx)
 
 bloxorzPrintMap(blzMap)
 
+# newBlock = move(block, blzMap, Direction(1))
+
+# newBlock2 = move(newBlock, blzMap, Direction(0))
+
+# print(newBlock2.blzBlockIdx)
+
+# print (newBlock2 == block)
+
+# print(newBlock.blzBlockIdx)
+
+bloxorzPrintMap(blzMap)
+
 blzSolver = DFS(blzMap, block)
 
 lenSolver = len(blzSolver)

@@ -46,23 +46,30 @@ class BlzBlock:
             # Move Right
             colR1 = self.blzBlockIdx[0][1] + 1
             colR2 = self.blzBlockIdx[0][1] + 2
-            self.blzMovable[int(Direction.RIGHT)] = False if (
-                colR1 >= numcols or colR2 >= numcols) else True
+            row = self.blzBlockIdx[0][0]
+            self.blzMovable[int(Direction.RIGHT)] = False if (colR1 >= numcols or colR2 >= numcols) else True
+            self.blzMovable[int(Direction.RIGHT)] = False if (blzMap[row][colR1] == '.' or blzMap[row][colR2] == '.') else True
+
             # Move Left
             colL1 = self.blzBlockIdx[0][1] - 2
             colL2 = self.blzBlockIdx[0][1] - 1
-            self.blzMovable[int(Direction.LEFT)] = False if (
-                colL1 < 0 or colL2 < 0) else True
+            row = self.blzBlockIdx[0][0]
+            self.blzMovable[int(Direction.LEFT)] = False if (colL1 < 0 or colL2 < 0) else True
+            self.blzMovable[int(Direction.LEFT)] = False if (blzMap[row][colL1] == '.' or blzMap[row][colL2] == '.') else True
+
             # Move Up
             rowU1 = self.blzBlockIdx[0][0] - 2
             rowU2 = self.blzBlockIdx[0][0] - 1
-            self.blzMovable[int(Direction.UP)] = False if (
-                rowU1 < 0 or rowU2 < 0) else True
+            col = self.blzBlockIdx[0][1]
+            self.blzMovable[int(Direction.UP)] = False if (rowU1 < 0 or rowU2 < 0) else True
+            self.blzMovable[int(Direction.UP)] = False if (blzMap[rowU1][col] == '.' or blzMap[rowU2][col] == '.') else True
+
             # Move Down
             rowD1 = self.blzBlockIdx[0][0] + 1
             rowD2 = self.blzBlockIdx[0][0] + 2
-            self.blzMovable[int(Direction.DOWN)] = False if (
-                rowD1 >= numrows or rowD2 >= numrows) else True
+            col = self.blzBlockIdx[0][1]
+            self.blzMovable[int(Direction.DOWN)] = False if (rowD1 >= numrows or rowD2 >= numrows) else True
+            self.blzMovable[int(Direction.UP)] = False if (blzMap[rowU1][col] == '.' or blzMap[rowU2][col] == '.') else True
 
         elif (self.blzState == State.GROUND_HOZ):
             # Move Right
@@ -78,8 +85,7 @@ class BlzBlock:
             self.blzMovable[int(Direction.UP)] = False if (rowU < 0) else True
             # Move Down
             rowD = self.blzBlockIdx[0][0] + 1
-            self.blzMovable[int(Direction.DOWN)] = False if (
-                rowD < 0) else True
+            self.blzMovable[int(Direction.DOWN)] = False if (rowD >= numrows) else True
 
         elif (self.blzState == State.GROUND_VEC):
             # Move Right
@@ -95,10 +101,22 @@ class BlzBlock:
             self.blzMovable[int(Direction.UP)] = False if (rowU < 0) else True
             # Move Down
             rowD = self.blzBlockIdx[1][0] + 1
-            self.blzMovable[int(Direction.DOWN)] = False if (
-                rowD < 0) else True
+            self.blzMovable[int(Direction.DOWN)] = False if (rowD >= numrows) else True
         else:
             pass
+
+    """Check the Block in the Finish position
+    Return: True - Block in Finish postion
+            False - Unless
+    """
+    def checkFinish(self, blzMap):
+      row = self.blzBlockIdx[0][0]
+      col = self.blzBlockIdx[0][1]
+      state = self.blzState
+      if(state == State.STAND and blzMap[row][col] == 'G'):
+        return True
+      else:
+        return False
 
 # -----------End class BlzBlock
 
@@ -141,6 +159,13 @@ def move(blzBlock, blzMap, direction):
       return moveLeft(blzBlock, blzMap)
   else: 
     return None
+
+"""Return True: Have blzBlock in blzList"""
+def checkBlockInList(blzBlock, blzList):
+  for i in range(len(blzList)):
+    if (blzList[i].blzBlockIdx == blzBlock.blzBlockIdx):
+      return True
+  return False
 
 # -----------Begin move function
 """Move Right
