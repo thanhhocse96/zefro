@@ -1,37 +1,44 @@
 from bloxors import State, Direction, BlzBlock, getStateStart, move, checkBlockInList
+from utils import returnGoalOfMap
 
-
+"""Return trace list
+DFS search"""
 def DFS(blzMap, blzStartBlock):
   blzStack = [blzStartBlock]
   
   blzTrace = []
+  # Check the goal of Map
+  goal = returnGoalOfMap(blzMap)
 
   while (len(blzStack) != 0): 
     curBlock = blzStack.pop()
     curBlock.checkMovable(blzMap)
-
-    # Debug
-    print ("Cur block: ", curBlock.blzBlockIdx)
-    if (not(checkBlockInList(curBlock, blzTrace))):
+   
+    print ("Cur block: ", curBlock.blzBlockIdx, curBlock.blzState)
+    
+    # Match to Goal -> Break the Loop
+    if(curBlock.blzBlockIdx == goal and curBlock.blzState == State.STAND):
+      blzTrace.append(curBlock)
+      break
+        
+    if (checkBlockInList(curBlock, blzTrace) == False):
       blzTrace.append(curBlock)
 
       lenCur = len(curBlock.blzMovable)
-      print (lenCur)
       for i in range(lenCur):
         if (curBlock.blzMovable[i] == True):
-          print("next",Direction(i), curBlock.blzMovable[i])
+          
           nextBlock = move(curBlock, blzMap, Direction(i))
           nextBlock.checkMovable(blzMap)
           blzStack.append(nextBlock)
-           # Debug
-          print ("Next block: ", nextBlock.blzBlockIdx)
+          
         else: 
           continue
     else:
       continue
-    if (curBlock.checkFinish(blzMap)):
-      break
+    
   return blzTrace
 
+"""BFS search"""
 def BFS():
   pass    

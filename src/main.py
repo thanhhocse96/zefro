@@ -33,3 +33,4 @@ lenSolver = len(blzSolver)
 print(lenSolver)
 
 print(blzSolver[lenSolver - 1].blzBlockIdx)
+bloxorzPrintMap(blzMap)
