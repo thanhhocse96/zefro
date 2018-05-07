@@ -14,7 +14,7 @@ def DFS(blzMap, blzStartBlock):
     curBlock = blzStack.pop()
     curBlock.checkMovable(blzMap)
    
-    print ("Cur block: ", curBlock.blzBlockIdx, curBlock.blzState)
+    print ("Vị trí: ", curBlock.blzBlockIdx, "\t \tTrạng thái: ", curBlock.blzState)
     
     # Match to Goal -> Break the Loop
     if(curBlock.blzBlockIdx == goal and curBlock.blzState == State.STAND):
